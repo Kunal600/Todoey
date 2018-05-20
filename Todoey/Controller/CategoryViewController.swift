@@ -10,7 +10,8 @@ import UIKit
 import CoreData
 import RealmSwift
 
-class CategoryViewController: UITableViewController {
+
+class CategoryViewController:  SwipeTableViewController{
 
     let realm = try! Realm()
     var categoryArray : Results<Category>?
@@ -18,7 +19,7 @@ class CategoryViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        
+       
        loadCategory()
     
     }
@@ -29,15 +30,18 @@ class CategoryViewController: UITableViewController {
         return categoryArray?.count ?? 1
     }
     
+//    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell") as! SwipeTableViewCell
+//        cell.delegate = self
+//        return cell
+//    }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ToDoCategoryCell", for: indexPath)
-        
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No Categories Added Yet"
-    
-        
         return cell
     }
+    
      //Mark: DataManipulation Methods
     
     func save(category: Category)
@@ -93,12 +97,27 @@ class CategoryViewController: UITableViewController {
     }
     
     
+    //Mark : Delete data from Swipe
+    
+    override func updateModel(at indexPath : IndexPath)
+    {
+                    if let item = self.categoryArray?[indexPath.row] {
+                        try! self.realm.write {
+                            self.realm.delete(item)
+                        }
+                    }
+    }
+    
+    
     
     //Mark: TableView Delegate Methods
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         performSegue(withIdentifier: "goToItems", sender: self)
     }
+    
+    
+    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
@@ -111,5 +130,5 @@ class CategoryViewController: UITableViewController {
         
         
     }
+    
 }
-
